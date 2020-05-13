@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+{% load static %}
+{% load widget_tweaks %}
+<html lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html" charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script type="text/javascript" src="{% static 'js/plotly-latest.min.js' %}"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Outliers</title>
+</head>
+<body>
+<nav class="navbar navbar-expand-md navbar-light bg-light">
+    <a href="{% url 'index' %}" class="navbar-brand">Brand</a>
+    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+        <div class="navbar-nav">
+            <a href="{% url 'status' %}" class="nav-item nav-link active">Feature Status</a>
+            <a href="{% url 'data_cleaning' %}" class="nav-item nav-link">Data Cleaning</a>
+            <a href="{% url 'feature_scaling' %}" class="nav-item nav-link">Feature Engineering</a>
+            <a href="{% url 'view_data' %}" class="nav-item nav-link" tabindex="-1">Data Review</a>
+            <a href="{% url 'plot_graphs' %}" class="nav-item nav-link">Plot Graphs</a>
+        </div>
+        <div class="navbar-nav ml-auto">
+            <a href="#" class="nav-item nav-link">Login</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-3 col-sm-2 col-md-2 col-lg-1 col-xl-1">
+{#            <nav class="nav navbar-light navbar-toggleable-sm">#}
+{#                <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarWEX" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">#}
+{#                    <span class="navbar-toggler-icon"></span>#}
+{#                </button>#}
+{#            </nav>#}
+            <div class="flex-column mt-md-0 mt-4 pt-md-0 pt-4" id="navbarWEX">
+                <a class="nav-link navbar-brand active" href="#"><span class="fa fa-home"></span></a>
+                <a href="{% url 'data_cleaning' %}" class="nav-link">Categories Encoding</a>
+                <a href="{% url 'outliers' %}" class="nav-link">Outliers</a>
+                <a href="{% url 'missing_imputation' %}" class="nav-link">Missing Imputation</a>
+            </div>
+        </div>
+        <div class="col-9 col-sm-10 col-md-10 col-lg-11 col-xl-11">
+            <div class="row">
+            {% for key, value in feature_box_plot.items %}
+                <div class="col-4 col-sm-5 col-md-5 col-lg-5 col-xl-5">
+                <div class="card" style="width: 650px">
+                    {{ value.box_plot | safe }}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ key }}</h5>
+                        <p class="card-text">Number of Outliers using IQR score: {{ value.num_outlier }}</p>
+
+                        {% if value.have_missing is True %}
+                            <p>This feature has missing values. Please impute the missing</p>
+                        {% endif %}
+                    <form class="form-group" method="post">
+                    {% csrf_token %}
+                        <button
+                                type="submit"
+                                class="btn btn-primary"
+                                value="{{ key }}"
+                                name="outlier"
+                                {% if value.num_outlier == 0 %}
+                                    disabled
+                                {% endif %}
+                        >Remove</button>
+                    </form>
+                    </div>
+                </div>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script
+  src="https://code.jquery.com/jquery-3.4.1.js"
+  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+  crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="{% static "js/jquery.twbsPagination.js" %}" type="text/javascript"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script type="text/javascript">
+
+</script>
+</body>
+</html>

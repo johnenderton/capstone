@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+{% load static %}
+{% load widget_tweaks %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script type="text/javascript" src="{% static 'js/plotly-latest.min.js' %}"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Graphs</title>
+</head>
+<body>
+<nav class="navbar navbar-expand-md navbar-light bg-light">
+    <a href="{% url 'index' %}" class="navbar-brand">Brand</a>
+    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+        <div class="navbar-nav">
+            <a href="{% url 'status' %}" class="nav-item nav-link active">Feature Status</a>
+            <a href="{% url 'data_cleaning' %}" class="nav-item nav-link">Data Cleaning</a>
+            <a href="{% url 'feature_scaling' %}" class="nav-item nav-link">Feature Engineering</a>
+            <a href="{% url 'view_data' %}" class="nav-item nav-link" tabindex="-1">Data Review</a>
+            <a href="{% url 'plot_graphs' %}" class="nav-item nav-link">Plot Graphs</a>
+        </div>
+        <div class="navbar-nav ml-auto">
+            <a href="#" class="nav-item nav-link">Login</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-4 col-sm-2 col-md-2 col-lg-2 col-xl-2">
+
+            <table class="table table-borderless table-hover overflow-auto">
+                <tbody>
+                <tr data-toggle="modal" data-target="#scatter_modal">
+                    <td>
+                        <button type="button" class="btn btn-secondary btn-lg btn-block">Scatter Plot</button>
+                    </td>
+                </tr>
+                <tr data-toggle="modal" data-target="#scatter_3d_modal">
+                    <td>
+                        <button type="button" class="btn btn-secondary btn-lg btn-block">Scatter 3D Plot</button>
+                    </td>
+                </tr>
+                <tr data-toggle="modal" data-target="#line_modal">
+                    <td>
+                        <button type="button" class="btn btn-secondary btn-lg btn-block">Line Plot</button>
+                    </td>
+                </tr>
+                <tr data-toggle="modal" data-target="#bar_modal">
+                    <td>
+                        <button type="button" class="btn btn-secondary btn-lg btn-block">Bar Plot</button>
+                    </td>
+                </tr>
+                <tr data-toggle="modal" data-target="#pie_modal">
+                    <td>
+                        <button type="button" class="btn btn-secondary btn-lg btn-block">Pie Plot</button>
+                    </td>
+                </tr>
+                <tr data-toggle="modal" data-target="#histogram_modal">
+                    <td>
+                        <button type="button" class="btn btn-secondary btn-lg btn-block">Histogram Plot</button>
+                    </td>
+                </tr>
+                <tr data-toggle="modal" data-target="#scatter_matrix_modal">
+                    <td>
+                        <button type="button" class="btn btn-secondary btn-lg btn-block">Scatter Matrix Plot</button>
+                    </td>
+                </tr>
+                <tr data-toggle="modal" data-target="#box_modal">
+                    <td>
+                        <button type="button" class="btn btn-secondary btn-lg btn-block">Box Plot</button>
+                    </td>
+                </tr>
+                <tr data-toggle="modal" data-target="#violin_modal">
+                    <td>
+                        <button type="button" class="btn btn-secondary btn-lg btn-block">Violin Plot</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <form method="post">
+                            {% csrf_token %}
+                            <button id="heat_map_btn" type="submit" class="btn btn-secondary btn-lg btn-block" name="heat_map_btn">Heat Map Plot</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-8 col-sm-10 col-md-10 col-lg-10 col-xl-10">
+            {{ fig | safe }}
+        </div>
+    </div>
+
+{# Scatter Form #}
+<div class="modal fade" id="scatter_modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Scatter Plot Parameters</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <!-- Modal body -->
+            <div class="modal-body">
+                <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                <table class="table table-borderless">
+                    <tbody>
+                    {% for field in scatter %}
+                        <tr>
+                        <td>{{ field.label_tag }}</td>
+                        <td>{% render_field field class="form-group" %}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                    <button id="scatter_btn" type="submit" class="btn btn-primary" name="scatter_btn">Plot</button>
+                </div>
+                </form>
+            </div>
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{# End of Scatter Form #}
+
+{# Scatter 3D Form #}
+<div class="modal fade" id="scatter_3d_modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Scatter 3D Plot Parameters</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <!-- Modal body -->
+            <div class="modal-body">
+                <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                <table class="table table-borderless">
+                    <tbody>
+                    {% for field in scatter_3d %}
+                        <tr>
+                        <td>{{ field.label_tag }}</td>
+                        <td>{% render_field field class="form-group" %}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                    <button id="scatter_3d_btn" type="submit" class="btn btn-primary" name="scatter_3d_btn">Plot</button>
+                </div>
+                </form>
+            </div>
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{# End of Scatter 3D Form #}
+
+{# Line Form #}
+<div class="modal fade" id="line_modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Line Plot Parameters</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <!-- Modal body -->
+            <div class="modal-body">
+                <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                <table class="table table-borderless">
+                    <tbody>
+                    {% for field in line %}
+                        <tr>
+                        <td>{{ field.label_tag }}</td>
+                        <td>{% render_field field class="form-group" %}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                    <button id="line_btn" type="submit" class="btn btn-primary" name="line_btn">Plot</button>
+                </div>
+                </form>
+            </div>
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{# End of Line Form #}
+
+{# Bar Form #}
+<div class="modal fade" id="bar_modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Bar Plot Parameters</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <!-- Modal body -->
+            <div class="modal-body">
+                <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                <table class="table table-borderless">
+                    <tbody>
+                    {% for field in bar %}
+                        <tr>
+                        <td>{{ field.label_tag }}</td>
+                        <td>{% render_field field class="form-group" %}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                    <button id="bar_btn" type="submit" class="btn btn-primary" name="bar_btn">Plot</button>
+                </div>
+                </form>
+            </div>
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{# End of Bar Form #}
+
+{# Pie Form #}
+<div class="modal fade" id="pie_modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Pie Plot Parameters</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <!-- Modal body -->
+            <div class="modal-body">
+                <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                <table class="table table-borderless">
+                    <tbody>
+                    {% for field in pie %}
+                        <tr>
+                        <td>{{ field.label_tag }}</td>
+                        <td>{% render_field field class="form-group" %}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                    <button id="pie_btn" type="submit" class="btn btn-primary" name="pie_btn">Plot</button>
+                </div>
+                </form>
+            </div>
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{# End of Pie Form #}
+
+{# Histogram Form #}
+<div class="modal fade" id="histogram_modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Histogram Plot Parameters</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <!-- Modal body -->
+            <div class="modal-body">
+                <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                <table>
+                    <thead>
+                    <th></th>
+                    <th></th>
+                    </thead>
+                    <tbody>
+                    {% for field in histogram %}
+                        <tr>
+                        <td>{{ field.label_tag }}</td>
+                        <td>{% render_field field class="form-group" %}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                    <button id="histogram_btn" type="submit" class="btn btn-primary" name="histogram_btn">Plot</button>
+                </div>
+                </form>
+            </div>
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{# End of Histogram Form #}
+
+{# Scatter Matrix Form #}
+<div class="modal fade" id="scatter_matrix_modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Scatter Matrix Plot Parameters</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <!-- Modal body -->
+            <div class="modal-body">
+                <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                <table class="table table-borderless">
+                    <tbody>
+                    {% for field in scatter_matrix %}
+                        <tr>
+                        <td>{{ field.label_tag }}</td>
+                        <td>{% render_field field class="form-group" %}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                    <button id="scatter_matrix_btn" type="submit" class="btn btn-primary" name="scatter_matrix_btn">Plot</button>
+                </div>
+                </form>
+            </div>
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{# End of Scatter Matrix Form #}
+
+{# Box Form #}
+<div class="modal fade" id="box_modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Box Plot Parameters</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <!-- Modal body -->
+            <div class="modal-body">
+                <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                <table class="table table-borderless">
+                    <tbody>
+                    {% for field in box %}
+                        <tr>
+                        <td>{{ field.label_tag }}</td>
+                        <td>{% render_field field class="form-group" %}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                    <button id="box_btn" type="submit" class="btn btn-primary" name="box_btn">Plot</button>
+                </div>
+                </form>
+            </div>
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{# End of Box Form #}
+
+{# Violin Form #}
+<div class="modal fade" id="violin_modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Violin Plot Parameters</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <!-- Modal body -->
+            <div class="modal-body">
+                <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                <table class="table table-borderless">
+                    <tbody>
+                    {% for field in violin %}
+                        <tr>
+                        <td>{{ field.label_tag }}</td>
+                        <td>{% render_field field class="form-group" %}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                    <button id="violin_btn" type="submit" class="btn btn-primary" name="violin_btn">Plot</button>
+                </div>
+                </form>
+            </div>
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{# End of Violin Form #}
+
+</div>
+
+<script
+  src="https://code.jquery.com/jquery-3.4.1.js"
+  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+  crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#scatter_btn").click(function (event) {
+        let x = $("#scatter_x").val()
+        let y = $("#scatter_y").val()
+        let facet_row = $("#scatter_facet_row").val()
+        let facet_col = $("#scatter_facet_col").val()
+        let color = $("#scatter_color").val()
+        let size = $("#scatter_size").val()
+
+        if (x.length === 0 || y.length === 0) {
+            event.preventDefault()
+            alert("Fields \"x\" and \"y\" cannot be empty!")
+        }
+        if (x === y) {
+            event.preventDefault()
+            alert("Fields \"x\" and \"y\" cannot be the same!")
+        }
+        if (facet_row.length > 0) {
+            if ((facet_row === x) || (facet_row === y)) {
+                event.preventDefault()
+                alert('Facet_row cannot be neither Field \"x\" nor \"y\"')
+            }
+            if (facet_row === facet_col) {
+                event.preventDefault()
+                alert('Can Only Choose One Facet')
+            }
+        }
+        if (facet_col.length > 0) {
+            if ((facet_col === x) || (facet_col === y)) {
+                event.preventDefault()
+                alert('Facet_col cannot be neither Field \"x\" nor \"y\"')
+            }
+            if (facet_row === facet_col) {
+                event.preventDefault()
+                alert('Can Only Choose One Facet')
+            }
+        }
+        if (color.length > 0) {
+            if ((color === x) || (color === y)) {
+                event.preventDefault()
+                alert('Color cannot be neither Field \"x\" nor \"y\"')
+            }
+        }
+        if (size.length > 0) {
+            if ((size === x) || (size === y)) {
+                event.preventDefault()
+                alert('Size cannot be neither Field \"x\" nor \"y\"')
+            }
+        }
+    });
+
+    $("#scatter_3d_btn").click(function (event) {
+        let x = $("#scatter_3d_x").val()
+        let y = $("#scatter_3d_y").val()
+        let z = $("#scatter_3d_z").val()
+        let color = $("#scatter_3d_color").val()
+        let size = $("#scatter_3d_size").val()
+
+        if (x.length === 0 || y.length === 0 || z.length === 0) {
+            event.preventDefault()
+            alert("'Fields \"x\" and \"y\" and \"z\" cannot be empty!'")
+        }
+        if ((x === y) || (x === z) || (y === z)) {
+            event.preventDefault()
+            alert("Fields \"x\" and \"y\" and \"z\" cannot be the same!")
+        }
+        if (color.length > 0) {
+            if ((color === x) || (color === y) || (color === z)) {
+                event.preventDefault()
+                alert('Color cannot be neither Fields \"x\", \"y\" nor \"z\"')
+            }
+        }
+        if (size.length > 0) {
+            if ((size === x) || (size === y) || (size === z)) {
+                event.preventDefault()
+                alert('Size cannot be neither Fields \"x\", \"y\" nor \"z\"')
+            }
+        }
+    });
+
+    $("#line_btn").click(function (event) {
+        let x = $("#line_x").val()
+        let y = $("#line_y").val()
+        let facet_row = $("#line_facet_row").val()
+        let facet_col = $("#line_facet_col").val()
+        let color = $("#line_color").val()
+
+        if (x.length === 0 || y.length === 0) {
+            event.preventDefault()
+            alert("'Fields \"x\" and \"y\" cannot be empty!'")
+        }
+        if (x === y) {
+            event.preventDefault()
+            alert("Fields \"x\" and \"y\" cannot be the same!")
+        }
+        if (facet_row.length > 0) {
+            if ((facet_row === x) || (facet_row === y)) {
+                event.preventDefault()
+                alert('Facet_row cannot be neither Field \"x\" nor \"y\"')
+            }
+            if (facet_row === facet_col) {
+                event.preventDefault()
+                alert('Can Only Choose One Facet')
+            }
+        }
+        if (facet_col.length > 0) {
+            if ((facet_col === x) || (facet_col === y)) {
+                event.preventDefault()
+                alert('Facet_col cannot be neither Field \"x\" nor \"y\"')
+            }
+            if (facet_row === facet_col) {
+                event.preventDefault()
+                alert('Can Only Choose One Facet')
+            }
+        }
+        if (color.length > 0) {
+            if ((color === x) || (color === y)) {
+                event.preventDefault()
+                alert('Color cannot be neither Field \"x\" nor \"y\"')
+            }
+        }
+    });
+
+    $("#bar_btn").click(function (event) {
+        let x = $("#bar_x").val()
+        let y = $("#bar_y").val()
+        let facet_row = $("#bar_facet_row").val()
+        let facet_col = $("#bar_facet_col").val()
+        let color = $("#bar_color").val()
+
+        if (x.length === 0 || y.length === 0) {
+            event.preventDefault()
+            alert("'Fields \"x\" and \"y\" cannot be empty!'")
+        }
+        if (x === y) {
+            event.preventDefault()
+            alert("Fields \"x\" and \"y\" cannot be the same!")
+        }
+        if (facet_row.length > 0) {
+            if ((facet_row === x) || (facet_row === y)) {
+                event.preventDefault()
+                alert('Facet_row cannot be neither Field \"x\" nor \"y\"')
+            }
+            if (facet_row === facet_col) {
+                event.preventDefault()
+                alert('Can Only Choose One Facet')
+            }
+        }
+        if (facet_col.length > 0) {
+            if ((facet_col === x) || (facet_col === y)) {
+                event.preventDefault()
+                alert('Facet_col cannot be neither Field \"x\" nor \"y\"')
+            }
+            if (facet_row === facet_col) {
+                event.preventDefault()
+                alert('Can Only Choose One Facet')
+            }
+        }
+        if (color.length > 0) {
+            if ((color === x) || (color === y)) {
+                event.preventDefault()
+                alert('Color cannot be neither Field \"x\" nor \"y\"')
+            }
+        }
+    });
+
+    $("#pie_btn").click(function (event) {
+        let x = $("#pie_values").val()
+        let y = $("#pie_names").val()
+        let color = $("#pie_color").val()
+
+        if (x.length === 0 || y.length === 0) {
+            event.preventDefault()
+            alert("'Fields \"values\" and \"names\" cannot be empty!'")
+        }
+        if (x === y) {
+            event.preventDefault()
+            alert("Fields \"x\" and \"y\" cannot be the same!")
+        }
+        if (color.length > 0) {
+            if ((color === x) || (color === y)) {
+                event.preventDefault()
+                alert('Color cannot be neither Field \"values\" nor \"names\"')
+            }
+        }
+    });
+
+    $("#histogram_btn").click(function (event) {
+        let x = $("#histogram_x").val()
+        let y = $("#histogram_y").val()
+        let facet_row = $("#histogram_facet_row").val()
+        let facet_col = $("#histogram_facet_col").val()
+        let color = $("#histogram_color").val()
+
+        if (x.length === 0 || y.length === 0) {
+            event.preventDefault()
+            alert("'Fields \"x\" and \"y\" cannot be empty!'")
+        }
+        if (x === y) {
+            event.preventDefault()
+            alert("Fields \"x\" and \"y\" cannot be the same!")
+        }
+        if (facet_row.length > 0) {
+            if ((facet_row === x) || (facet_row === y)) {
+                event.preventDefault()
+                alert('Facet_row cannot be neither Field \"x\" nor \"y\"')
+            }
+            if (facet_row === facet_col) {
+                event.preventDefault()
+                alert('Can Only Choose One Facet')
+            }
+        }
+        if (facet_col.length > 0) {
+            if ((facet_col === x) || (facet_col === y)) {
+                event.preventDefault()
+                alert('Facet_col cannot be either Field \"x\" nor \"y\"')
+            }
+            if (facet_row === facet_col) {
+                event.preventDefault()
+                alert('Can Only Choose One Facet')
+            }
+        }
+        if (color.length > 0) {
+            if ((color === x) || (color === y)) {
+                event.preventDefault()
+                alert('Color cannot be neither Field \"x\" nor \"y\"')
+            }
+        }
+    });
+
+    $("#scatter_matrix_btn").click(function (event) {
+        let feature_1 = $("#scatter_matrix_feature_1").val()
+        let feature_2 = $("#scatter_matrix_feature_2").val()
+        let feature_3 = $("#scatter_matrix_feature_3").val()
+        let feature_4 = $("#scatter_matrix_feature_4").val()
+        let color = $("#scatter_matrix_color").val()
+        let symbol = $("#scatter_matrix_symbol").val()
+        let size = $("#scatter_matrix_size").val()
+
+        if ((feature_1.length === 0) || (feature_2.length === 0) || (feature_3.length === 0) || (feature_4.length === 0)) {
+            event.preventDefault()
+            alert("Field features are not allowed to be empty")
+        }
+        if ((feature_1 === color) || (feature_2 === color) || (feature_3 === color) || (feature_4 === color)) {
+            event.preventDefault()
+            alert("Field features and color cannot be the same")
+        }
+        if ((feature_1 === symbol) || (feature_2 === symbol) || (feature_3 === symbol) || (feature_4 === symbol)) {
+            event.preventDefault()
+            alert("Field features and symbol cannot be the same")
+        }
+        if ((feature_1 === size) || (feature_2 === size) || (feature_3 === size) || (feature_4 === size)) {
+            event.preventDefault()
+            alert("Field features and size cannot be the same")
+        }
+    });
+
+    $("#box_btn").click(function (event) {
+        let x = $("#box_x").val()
+        let y = $("#box_y").val()
+        let facet_row = $("#box_facet_row").val()
+        let facet_col = $("#box_facet_col").val()
+        let color = $("#box_color").val()
+
+        if (x.length === 0 && y.length === 0) {
+            event.preventDefault()
+            alert("'Fields \"x\" or \"y\" cannot be empty!'")
+        }
+        if (x === y) {
+            event.preventDefault()
+            alert("Fields \"x\" and \"y\" cannot be the same!")
+        }
+        if (facet_row.length > 0) {
+            if ((facet_row === x) || (facet_row === y)) {
+                event.preventDefault()
+                alert('Facet_row cannot be neither Field \"x\" nor \"y\"')
+            }
+            if (facet_row === facet_col) {
+                event.preventDefault()
+                alert('Can Only Choose One Facet')
+            }
+        }
+        if (facet_col.length > 0) {
+            if ((facet_col === x) || (facet_col === y)) {
+                event.preventDefault()
+                alert('Facet_col cannot be either Field \"x\" nor \"y\"')
+            }
+            if (facet_row === facet_col) {
+                event.preventDefault()
+                alert('Can Only Choose One Facet')
+            }
+        }
+        if (color.length > 0) {
+            if ((color === x) || (color === y)) {
+                event.preventDefault()
+                alert('Color cannot be neither Field \"x\" nor \"y\"')
+            }
+        }
+    });
+
+    $("#violin_btn").click(function (event) {
+        let x = $("#violin_x").val()
+        let y = $("#violin_y").val()
+        let facet_row = $("#violin_facet_row").val()
+        let facet_col = $("#violin_facet_col").val()
+        let color = $("#violin_color").val()
+
+        if (x.length === 0 && y.length === 0) {
+            event.preventDefault()
+            alert("'Fields \"x\" and \"y\" cannot be empty!'")
+        }
+        if (x === y) {
+            event.preventDefault()
+            alert("Fields \"x\" and \"y\" cannot be the same!")
+        }
+        if (facet_row.length > 0) {
+            if ((facet_row === x) || (facet_row === y)) {
+                event.preventDefault()
+                alert('Facet_row cannot be neither Field \"x\" nor \"y\"')
+            }
+            if (facet_row === facet_col) {
+                event.preventDefault()
+                alert('Can Only Choose One Facet')
+            }
+        }
+        if (facet_col.length > 0) {
+            if ((facet_col === x) || (facet_col === y)) {
+                event.preventDefault()
+                alert('Facet_col cannot be either Field \"x\" nor \"y\"')
+            }
+            if (facet_row === facet_col) {
+                event.preventDefault()
+                alert('Can Only Choose One Facet')
+            }
+        }
+        if (color.length > 0) {
+            if ((color === x) || (color === y)) {
+                event.preventDefault()
+                alert('Color cannot be neither Field \"x\" nor \"y\"')
+            }
+        }
+    });
+});
+</script>
+</body>
+</html>

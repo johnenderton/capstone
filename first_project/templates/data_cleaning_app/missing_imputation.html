@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+{% load static %}
+{% load widget_tweaks %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Missing Imputation</title>
+</head>
+<body>
+<nav class="navbar navbar-expand-md navbar-light bg-light">
+    <a href="{% url 'index' %}" class="navbar-brand">Brand</a>
+    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+        <div class="navbar-nav">
+            <a href="{% url 'status' %}" class="nav-item nav-link active">Feature Status</a>
+            <a href="{% url 'data_cleaning' %}" class="nav-item nav-link">Data Cleaning</a>
+            <a href="{% url 'feature_scaling' %}" class="nav-item nav-link">Feature Engineering</a>
+            <a href="{% url 'view_data' %}" class="nav-item nav-link" tabindex="-1">Data Review</a>
+            <a href="{% url 'plot_graphs' %}" class="nav-item nav-link">Plot Graphs</a>
+        </div>
+        <div class="navbar-nav ml-auto">
+            <a href="#" class="nav-item nav-link">Login</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    {# Sub menu on the right side #}
+    <div class="row">
+        <div class="col-3 col-sm-2 col-md-2 col-lg-1 col-xl-1">
+{#            <nav class="nav navbar-light navbar-toggleable-sm">#}
+{#                <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarWEX" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">#}
+{#                    <span class="navbar-toggler-icon"></span>#}
+{#                </button>#}
+{#            </nav>#}
+            <div class="flex-column mt-md-0 mt-4 pt-md-0 pt-4" id="navbarWEX">
+                <a class="nav-link navbar-brand active" href="#"><span class="fa fa-home"></span></a>
+                <a href="{% url 'data_cleaning' %}" class="nav-link">Categories Encoding</a>
+                <a href="{% url 'outliers' %}" class="nav-link">Outliers</a>
+                <a href="{% url 'missing_imputation' %}" class="nav-link">Missing Imputation</a>
+            </div>
+        </div>
+        {# End sub menu #}
+
+        <div class="col-9 col-sm-10 col-md-10 col-lg-11 col-xl-11">
+        <p>
+            {% if simple_imputer.errors %}
+                {% for field in simple_imputer %}
+                    {% for error in field.errors %}
+                        <strong>{{ error | escape }}</strong>
+                    {% endfor %}
+                {% endfor %}
+            {% endif %}
+        </p>
+            <div class="table-responsive">
+                <table id="missing_imputation_table" class="table table-hover table-borderless">
+                    <tbody class="accordion" id="missing_imputation_accordion">
+                    <tr id="heading_simple_imputer" data-toggle="collapse" data-target="#collapse_simple_imputer" class="accordion-toggle collapsed">
+                        <td>Simple Imputer</td>
+                    </tr>
+                    <tr id="collapse_simple_imputer" class="hide-table-padding collapse" aria-labelledby="heading_simple_imputer" data-parent="#missing_imputation_accordion">
+                        <td>
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                <table class="table table-borderless">
+                                    <tbody>
+                                    {% for field in simple_imputer %}
+                                    <tr>
+                                        <td><label>{{ field.label_tag }}</label></td>
+                                        <td>{% render_field field class="form-group" %}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                    <button id="simple_imputer_btn" class="btn btn-primary" name="simple_imputer_btn">Impute</button>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+
+                    <tr id="heading_iterative_imputer" data-toggle="collapse" data-target="#collapse_iterative_imputer" class="accordion-toggle collapsed">
+                        <td>Iterative Imputer</td>
+                    </tr>
+                    <tr id="collapse_iterative_imputer" class="hide-table-padding collapse" aria-labelledby="heading_iterative_imputer" data-parent="#missing_imputation_accordion">
+                        <td>
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                <table class="table table-borderless">
+                                    <tbody>
+                                    {% for field in iterative_imputer %}
+                                    <tr>
+                                        <td><label>{{ field.label_tag }}</label></td>
+                                        <td>{% render_field field class="form-group" %}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                    <button class="btn btn-primary" name="iterative_imputer_btn">Impute</button>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script
+  src="https://code.jquery.com/jquery-3.4.1.js"
+  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+  crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+    $("#simple_imputer_btn").click(function (event) {
+        let feature_type = $("#simple_imputer_feature_type").val()
+        let strategy = $("#simple_imputer_strategy").val()
+        let fill_value = $("#simple_imputer_fill_value").val()
+        if (strategy === 'constant') {
+            if (fill_value.length === 0) {
+                event.preventDefault()
+                alert('A Constant Strategy Needs a Constant Value. Please Enter a Value in "fill_value" Field!')
+            }
+        }
+        if (feature_type === 'categorical_features') {
+            if ( (strategy === 'mean') || (strategy === 'median') ) {
+                event.preventDefault()
+                alert('Cannot Choose \"mean\" or \"median\" Strategy for Category Features!')
+            }
+        }
+    });
+});
+</script>
+
+</body>
+</html>

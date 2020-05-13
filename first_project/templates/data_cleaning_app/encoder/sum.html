@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+{% load widget_tweaks %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sum</title>
+</head>
+<body>
+<P>Sum Encoder Function Parameters</P>
+<form method="post">
+{% csrf_token %}
+<div class="form-group">
+    {% for field in sum %}
+        <div>
+        <label>{{ field.label_tag }}</label>
+        {% render_field field class="form-group" %}
+        </div>
+    {% endfor %}
+    <button class="btn btn-primary" name="sum_btn">Encode</button>
+</div>
+</form>
+</body>
+</html>

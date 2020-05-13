@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <style type="text/css">
+        .name-box{
+            padding: 10px;
+            font-size: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .spacer{
+            clear:both;
+            height: 10px;
+        }
+
+        .page, .prev, .next{
+            display: inline-block;
+            padding: 3px 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #333;
+            background: #eee;
+            font-weight: bold;
+        }
+        .page:hover, .prev:hover, .next:hover{
+            background: #333;
+        }
+        .page.current{
+            background: #333;
+            color: white;
+        }
+        .page.disabled, .prev.disabled, .next.disabled{
+            color: #ddd;
+            cursor: default;
+        }
+        .first-col {
+            position: absolute;
+            width: 250px;
+            padding-right: 200px;
+            {#margin-left: -100px;#}
+        }
+        th, td {
+            white-space: nowrap;
+        }
+        .table-wrapper {
+            overflow-x: scroll;
+            width: 600px;
+            margin: 0 auto;
+        }
+        .table-scroll {
+            position:relative;
+            {#max-width:600px;#}
+            margin:auto;
+            overflow:hidden;
+            {#border:1px solid #000;#}
+        }
+        .table-wrap {
+            width:100%;
+            overflow:auto;
+        }
+        .table-scroll table {
+            width:100%;
+            margin:auto;
+            border-collapse:separate;
+            border-spacing:0;
+        }
+        .table-scroll th, .table-scroll td {
+            padding:5px 10px;
+            {#border:1px solid #000;#}
+            {#background:#fff;#}
+            white-space:nowrap;
+            vertical-align:top;
+        }
+        .table-scroll thead, .table-scroll tfoot {
+            {#background:#f9f9f9;#}
+        }
+        .clone {
+            position:absolute;
+            top:0;
+            left:0;
+            pointer-events:none;
+        }
+        .clone th, .clone td {
+            visibility:hidden
+        }
+        .clone td, .clone th {
+            border-color:transparent
+        }
+        .clone tbody th {
+            visibility:visible;
+        }
+        .clone .fixed-side {
+            {#border:1px solid #000;#}
+            {#background:#eee;#}
+            visibility:visible;
+        }
+        .clone thead, .clone tfoot{background:transparent;}
+    </style>
+    <title>Correlation Matrix</title>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-md navbar-light bg-light">
+    <a href="{% url 'index' %}" class="navbar-brand">Brand</a>
+    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+        <div class="navbar-nav">
+            <a href="{% url 'status' %}" class="nav-item nav-link active">Feature Status</a>
+            <a href="{% url 'data_cleaning' %}" class="nav-item nav-link">Data Cleaning</a>
+            <a href="#" class="nav-item nav-link">Feature Engineering</a>
+            <a href="{% url 'view_data' %}" class="nav-item nav-link" tabindex="-1">Data Review</a>
+            <a href="{% url 'plot_graphs' %}" class="nav-item nav-link">Plot Graphs</a>
+        </div>
+        <div class="navbar-nav ml-auto">
+            <a href="#" class="nav-item nav-link">Login</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-3 col-sm-2 col-md-2 col-lg-1 col-xl-1">
+            <div class="flex-column mt-md-0 mt-4 pt-md-0 pt-4">
+                <a class="nav-link navbar-brand active" href="#"><span class="fa fa-home"></span></a>
+                <a href="{% url 'feature_scaling' %}" class="nav-link">Feature Scaling</a>
+                <a href="{% url 'correlation_matrix' %}" class="nav-link">Correlation Matrix</a>
+{#                <a href="{% url 'missing_imputation' %}" class="nav-link">Missing Imputation</a>#}
+            </div>
+        </div>
+
+        {# Page Content #}
+        <div class="col-9 col-sm-10 col-md-10 col-lg-11 col-xl-11">
+        <div id="table-scroll" class="table-scroll">
+            <div class="table-responsive table-wrap">
+                <table id="data_table" class="table table-hover main-table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th class="fixed-side" scope="col">Feature Name</th>
+                            {% for key in features_name %}
+                            <th>{{ key }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody id="data_table_body" class="thead-light">
+                    {% for key, value in corr.object_list %}
+                        <tr>
+                        {% for item in value %}
+                            {% if forloop.first %}
+                                <th class="fixed-side">{{ item }}</th>
+                                {% else %}
+                                <td>{{ item }}</td>
+                            {% endif %}
+
+                        {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <br>
+            <div class="row">
+                <div class="align-self-center mx-auto align-items-center" style="height: 50px;">
+                    {{ corr.render }}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script
+  src="https://code.jquery.com/jquery-3.4.1.js"
+  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+  crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script type="text/javascript">
+jQuery(document).ready(function() {
+   jQuery(".main-table").clone(true).appendTo('#table-scroll').addClass('clone');
+ });
+</script>
+
+</body>
+</html>

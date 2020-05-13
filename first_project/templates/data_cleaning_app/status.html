@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+{#    <link rel="stylesheet" type="text/css" href="{% static "css/myStyle.css" %}">#}
+    <style type="text/css">
+        .name-box{
+            padding: 10px;
+            font-size: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .spacer{
+            clear:both;
+            height: 10px;
+        }
+
+        .page, .prev, .next{
+            display: inline-block;
+            padding: 3px 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #333;
+            background: #eee;
+            font-weight: bold;
+        }
+        .page:hover, .prev:hover, .next:hover{
+            background: #333;
+        }
+        .page.current{
+            background: #333;
+            color: white;
+        }
+        .page.disabled, .prev.disabled, .next.disabled{
+            color: #ddd;
+            cursor: default;
+        }
+    </style>
+    <title>Status</title>
+</head>
+<body>
+<nav class="navbar navbar-expand-md navbar-light bg-light">
+    <a href="{% url 'index' %}" class="navbar-brand">Brand</a>
+    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+        <div class="navbar-nav">
+            <a href="{% url 'status' %}" class="nav-item nav-link active">Feature Status</a>
+            <a href="{% url 'data_cleaning' %}" class="nav-item nav-link">Data Cleaning</a>
+            <a href="{% url 'feature_scaling' %}" class="nav-item nav-link">Feature Engineering</a>
+            <a href="{% url 'view_data' %}" class="nav-item nav-link" tabindex="-1">Data Review</a>
+            <a href="{% url 'plot_graphs' %}" class="nav-item nav-link">Plot Graphs</a>
+        </div>
+        <div class="navbar-nav ml-auto">
+            <a href="#" class="nav-item nav-link">Login</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Data Set Overall Information</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><label>Number of Rows</label></td>
+            <td><label>{{ num_rows }}</label></td>
+        </tr>
+        <tr>
+            <td><label>Number of Columns</label></td>
+            <td><label>{{ num_cols }}</label></td>
+        </tr>
+        <tr>
+            <td><label>Number of Numeric Features</label></td>
+            <td><label>{{ num_numeric_features }}</label></td>
+        </tr>
+        <tr>
+            <td><label>Number of Categorical Features</label></td>
+            <td><label>{{ num_category_features }}</label></td>
+        </tr>
+        <tr>
+            <td><label>Total Number of Missing Values</label></td>
+            <td><label>{{ num_missing }}</label></td>
+        </tr>
+        <tr>
+            <td><label>Percentage of Missing</label></td>
+            <td><label>{{ percent_missing }}%</label></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="table-responsive">
+    <table id="feature_status_table" class="table table-hover">
+        <thead class="thead-light">
+            <tr>
+                <th>Feature Name</th>
+                <th>Feature Type</th>
+                <th>Unique Values</th>
+                <th>Missing Data</th>
+                <th>Missing Data Percentage</th>
+                <th>Feature Statistic</th>
+                <th>Remove Feature</th>
+            </tr>
+        </thead>
+        <tbody class="accordion" id="feature_status_accordion">
+
+        {% for key, value in feature_status.object_list %}
+
+            <tr id="heading_{{ key }}" data-toggle="collapse" data-target="#collapse_{{ key }}" class="accordion-toggle collapsed">
+                <td>{{ key }}</td>
+                <td>{{ value.attr_type }}</td>
+                <td>{{ value.n_unique_val }}</td>
+                <td>{{ value.number_of_missing }}</td>
+                <td>{{ value.percentage_of_missing }}</td>
+                <td>
+                {% if value.attr_type == 'numeric' %}
+                    <button type="button" class="btn btn-link" >Show Statistic</button>
+                {% else %}
+                    <label>Category type has no statistic</label>
+                {% endif %}
+                </td>
+                <td>
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary" name="btn_status_remove_feature" value="{{ key }}">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% if value.attr_type == 'numeric' %}
+            <tr id="collapse_{{ key }}" class="hide-table-padding collapse" aria-labelledby="heading_{{ key }}" data-parent="#feature_status_accordion">
+                <td colspan="6">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mean</th>
+                                <th>Median</th>
+                                <th>Variance</th>
+                                <th>Standard Deviation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ value.mean }}</td>
+                                <td>{{ value.median }}</td>
+                                <td>{{ value.variance }}</td>
+                                <td>{{ value.standard_deviation }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+<div class="row">
+<div class="align-self-center mx-auto align-items-center" style="height: 50px;">
+{{ feature_status.render }}
+</div>
+</div>
+{#{% if feature_status.has_other_pages %}#}
+{#    <ul id="status_page" class="pagination">#}
+{#        {% if feature_status.has_previous %}#}
+{#        <li class="page-item">#}
+{#            <a class="page-link" href="{% url 'status' %}?page={{ feature_status.previous_page_number }}">&laquo;</a>#}
+{#        </li>#}
+{#        {% else %}#}
+{#        <li class="page-item disabled"><span class="page-link">&laquo;</span></li>#}
+{#        {% endif %}#}
+{#        {% for i in feature_status.paginator.page_range %}#}
+{#            {% if feature_status.number == i %}#}
+{#                <li class="active page-item">#}
+{#                    <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>#}
+{#                </li>#}
+{#            {% else %}#}
+{#                <li class="page-item">#}
+{#                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>#}
+{#                </li>#}
+{#            {% endif %}#}
+{#        {% endfor %}#}
+{#        {% if feature_status.has_next %}#}
+{#            <li class="page-item">#}
+{#                <a class="page-link" href="{% url 'status' %}?page={{ feature_status.next_page_number }}">&raquo;</a>#}
+{#            </li>#}
+{#        {% else %}#}
+{#            <li class="disabled page-item">#}
+{#                <span class="page-link">&raquo;</span>#}
+{#            </li>#}
+{#        {% endif %}#}
+{#    </ul>#}
+{#{% endif %}#}
+</div>
+
+
+<script src="{% static "js/myJS.js" %}" type="text/javascript"></script>
+<script
+  src="https://code.jquery.com/jquery-3.4.1.js"
+  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+  crossorigin="anonymous"></script>
+<script
+        src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous">
+</script>
+{#<script src="{% static "js/jquery.twbsPagination.js" %}" type="text/javascript"></script>#}
+<script
+        src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous">
+</script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#status_page").twbsPagination({
+        totalPages: {{ num_page }},
+        visiblePages: 20
+    })
+
+});
+</script>
+</body>
+</html>

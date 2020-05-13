@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+{% load widget_tweaks %}
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Feature Scaling</title>
+</head>
+<body>
+<nav class="navbar navbar-expand-md navbar-light bg-light">
+    <a href="{% url 'index' %}" class="navbar-brand">Brand</a>
+    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+        <div class="navbar-nav">
+            <a href="{% url 'status' %}" class="nav-item nav-link active">Feature Status</a>
+            <a href="{% url 'data_cleaning' %}" class="nav-item nav-link">Data Cleaning</a>
+            <a href="#" class="nav-item nav-link">Feature Engineering</a>
+            <a href="{% url 'view_data' %}" class="nav-item nav-link" tabindex="-1">Data Review</a>
+            <a href="{% url 'plot_graphs' %}" class="nav-item nav-link">Plot Graphs</a>
+        </div>
+        <div class="navbar-nav ml-auto">
+            <a href="#" class="nav-item nav-link">Login</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-3 col-sm-2 col-md-2 col-lg-1 col-xl-1">
+            <div class="flex-column mt-md-0 mt-4 pt-md-0 pt-4">
+                <a class="nav-link navbar-brand active" href="#"><span class="fa fa-home"></span></a>
+                <a href="{% url 'feature_scaling' %}" class="nav-link">Feature Scaling</a>
+                <a href="{% url 'correlation_matrix' %}" class="nav-link">Correlation Matrix</a>
+{#                <a href="{% url 'missing_imputation' %}" class="nav-link">Missing Imputation</a>#}
+            </div>
+        </div>
+        {# Page Content #}
+        <div class="col-9 col-sm-10 col-md-10 col-lg-11 col-xl-11">
+            {# Navigation Tab Menu #}
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a href="#auto_scaling" class="nav-link" data-toggle="tab">Auto Feature Scaling</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#manual_scaling" class="nav-link active" data-toggle="tab">Manual Feature Scaling</a>
+                </li>
+            </ul>
+            {# End of Navigaton Tab Menu #}
+
+            {# Navigation Tab content #}
+            <div class="tab-content">
+                {# First Content #}
+                <div class="tab-pane fade" id="auto_scaling">
+                    <div class="table-responsive">
+                        <table id="feature_status_table" class="table table-hover">
+                            <tbody>
+                                <tr>
+                                    <td>Normalization</td>
+                                </tr>
+                                <tr>
+                                    <td>Standardization</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {# End of First Content #}
+                {# Second Content #}
+                <div class="tab-pane fade show active" id="manual_scaling">
+                    <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Scaling Method</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for key in feature_name.object_list %}
+                        <tr>
+                            <td>{{ key }}</td>
+                            <td>
+                                <form method="post">
+                                    {% csrf_token %}
+                                    {{ scaling_feature.scaling_method }}
+                                    <button type="submit" name="scaling_btn" class="btn btn-primary manual-scale-btn" id="{{ key }}" value="{{ key }}"> Scale </button>
+
+                                </form>
+                            </td>
+                            <td>
+{#                                <button type="submit" name="scaling_btn" class="btn btn-primary manual-scale-btn" id="{{ key }}" value="{{ key }}"> Scale </button>#}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                    </table>
+                    <!-- Paginator -->
+                    <div id="data_cleaning_page_holder">
+                    <div class="align-self-center mx-auto align-items-center" style="height: 50px;">
+                        {{ feature_name.render }}
+                    </div>
+{#                    {% if feature_name.has_other_pages %}#}
+{#                    <ul id="feature_scaling_page" class="pagination">#}
+{#                        {% if feature_name.has_previous %}#}
+{#                        <li class="page-item">#}
+{#                            <a class="page-link" href="{% url 'data_cleaning' %}?page={{ feature_name.previous_page_number }}">&laquo;</a>#}
+{#                        </li>#}
+{#                        {% else %}#}
+{#                        <li class="page-item disabled"><span class="page-link">&laquo;</span></li>#}
+{#                        {% endif %}#}
+{#                        {% for i in feature_name.paginator.page_range %}#}
+{#                            {% if feature_name.number == i %}#}
+{#                                <li class="active page-item">#}
+{#                                    <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>#}
+{#                                </li>#}
+{#                            {% else %}#}
+{#                                <li class="page-item">#}
+{#                                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>#}
+{#                                </li>#}
+{#                            {% endif %}#}
+{#                        {% endfor %}#}
+{#                        {% if feature_name.has_next %}#}
+{#                            <li class="page-item">#}
+{#                                <a class="page-link" href="{% url 'data_cleaning' %}?page={{ feature_name.next_page_number }}">&raquo;</a>#}
+{#                            </li>#}
+{#                        {% else %}#}
+{#                            <li class="disabled page-item">#}
+{#                                <span class="page-link">&raquo;</span>#}
+{#                            </li>#}
+{#                        {% endif %}#}
+{#                    </ul>#}
+{#                    {% endif %}#}
+                    </div>
+                    <!-- End of Paginator -->
+                </div>
+                {# End of Second Content #}
+            </div>
+            {# End of Navigation Tab Content #}
+        </div>
+        {# End of Page Content #}
+    </div>
+</div>
+
+<script
+  src="https://code.jquery.com/jquery-3.4.1.js"
+  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+  crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("select.manual_scaling").change(function(){
+            let selectedScaler = $(this).children("option:selected").val();
+            $(".manual-scale-btn").click(function () {
+                let feature_name = this.id;
+                $("#manual_encode_feature_name").val(feature_name);
+                let selectedModal = "#" + selectedScaler + "_modal";
+                $(this).attr('data-target', selectedModal);
+                let encoder_feature_name = selectedScaler + "_feature_name";
+                $("#"+encoder_feature_name).val(feature_name);
+                console.log(selectedModal);
+                console.log(selectedScaler);
+
+            });
+        });
+        $("#feature_scaling_page").twbsPagination({
+            totalPages: {{ num_page }},
+            visiblePages: 20
+        });
+    });
+</script>
+</body>
+</html>
