@@ -1,5 +1,7 @@
 # %%
 import os
+import sys
+from io import StringIO # Python 3.x
 import fnmatch
 import pandas as pd
 import numpy as np
@@ -33,12 +35,18 @@ from pyod.models.iforest import IForest
 from pyod.models.lof import LOF
 from pyod.utils.data import generate_data, get_outliers_inliers
 
+# AWS
+import boto3
+
 _REPLACE = 'replace'
 _DROP = 'drop'
 _DROP_SAMPLES = 'drop_samples'
 _DROP_FEATURES = 'drop_features'
 _SKIP = 'skip'
 _DEFAULT_REPLACE_VALUE = 0.0
+
+AWS_ACCESS_KEY_ID = 'AKIAU33V7LVLXIAJ5CUU'
+AWS_SECRET_ACCESS_KEY = 'cv2FdevMHXd4aoH9dlv0k+R0FWZdPxmNLPISCI0O'
 
 
 def convert(data, to):
@@ -189,12 +197,24 @@ class PPD:
         self.max_IQR = None
 
     def init(self, file_location):
+
+        client = boto3.client(
+            's3',
+            aws_access_key_id=AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+        )
+        bucket_name = 'django-capstone'
+        object_key = file_location
+        obj = client.get_object(Bucket=bucket_name, Key=object_key)
+        body = obj['Body']
+        body_data = body.read().decode('utf-8')
+
         # Read file using pandas into Data Frame
         # data = pd.read_csv(file_location)
         self.fileName, self.fileExtension = os.path.splitext(file_location)
 
         if self.fileExtension == ".csv":
-            self.data = pd.read_csv(file_location)
+            self.data = pd.read_csv(StringIO(body_data))
         elif self.fileExtension == ".xlsx" or self.fileExtension == ".xls":
             self.data = pd.read_excel(file_location)
         elif self.fileExtension == ".json":

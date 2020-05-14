@@ -24,6 +24,9 @@ from plotly.graph_objects import Box
 import plotly.express as px
 import plotly.io as pio
 
+# AWS
+import boto3
+
 # From custom templatetags
 from .templatetags import proper_paginate
 
@@ -32,6 +35,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 data_files_dir = None
 file_name = None
 ppd = PPD()
+AWS_ACCESS_KEY_ID = 'AKIAU33V7LVLXIAJ5CUU'
+AWS_SECRET_ACCESS_KEY = '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'
 
 
 def index(request):
@@ -52,22 +57,35 @@ def index(request):
         if form.is_valid():
 
             # Get full url of the file
-            full_file_name = os.path.join(data_files_dir, str(request.FILES['Upload_File']))
-            fout = open(full_file_name, 'wb+')
-            file_content = ContentFile(request.FILES['Upload_File'].read())
-            try:
-                # Iterate through the chunks.
-                for chunk in file_content.chunks():
-                    fout.write(chunk)
-                fout.close()
-                print("Success")
-            except:
-                print("Fail")
+            # full_file_name = os.path.join(data_files_dir, str(request.FILES['Upload_File']))
+            # fout = open(full_file_name, 'wb+')
+            # file_content = ContentFile(request.FILES['Upload_File'].read())
+            # try:
+            #     # Iterate through the chunks.
+            #     for chunk in file_content.chunks():
+            #         fout.write(chunk)
+            #     fout.close()
+            #     print("Success")
+            # except:
+            #     print("Fail")
+            #
+            # # Get file name
+            # file_name = form.cleaned_data['Upload_File']
+            # file_name = os.path.join(data_files_dir, str(file_name))
+            # ppd.init(file_name)
+            data = open(str(form.cleaned_data['Upload_File']), 'rb')
 
-            # Get file name
-            file_name = form.cleaned_data['Upload_File']
-            file_name = os.path.join(data_files_dir, str(file_name))
-            ppd.init(file_name)
+            s3 = boto3.resource(
+                's3',
+                aws_access_key_id=AWS_ACCESS_KEY_ID,
+                aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+            )
+            s3.Bucket('django-capstone').put_object(
+                Key=str(form.cleaned_data['Upload_File']),
+                Body=data
+            )
+            ppd.init(str(form.cleaned_data['Upload_File']))
+
             return HttpResponseRedirect('data_cleaning_app/status/')
     else:
         form = UploadFileForm()

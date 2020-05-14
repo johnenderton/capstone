@@ -26,7 +26,7 @@ SECRET_KEY = '0m&3^$=59=&d-(+zqxst84wn&cp7uid!(%oli5y!ht8+xsngug'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'django_plotly_dash.apps.DjangoPlotlyDashConfig',
     'channels',
     'channels_redis',
-    'pure_pagination'
+    'pure_pagination',
+    'storages'
 ]
 
 MIDDLEWARE = [
@@ -157,10 +158,22 @@ PAGINATION_SETTINGS = {
     'SHOW_FIRST_PAGE_WHEN_INVALID': True,
 }
 
+# AWS S3 Config
+AWS_ACCESS_KEY_ID = 'AKIAU33V7LVLXIAJ5CUU'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_S3_FILE_OVERWRITE = ''
+AWS_DEFAULT_ACL = None
+AWS_STORAGE_BUCKET_NAME = 'django-capstone'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_LOCATION = 'static'
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-STATIC_URL = '/static/'
+# STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     STATIC_DIR,
 ]
+STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)

@@ -6,6 +6,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <style type="text/css">
+        .name-box{
+            padding: 10px;
+            font-size: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .spacer{
+            clear:both;
+            height: 10px;
+        }
+
+        .page, .prev, .next{
+            display: inline-block;
+            padding: 3px 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #333;
+            background: #eee;
+            font-weight: bold;
+        }
+        .page:hover, .prev:hover, .next:hover{
+            background: #333;
+        }
+        .page.current{
+            background: #333;
+            color: white;
+        }
+        .page.disabled, .prev.disabled, .next.disabled{
+            color: #ddd;
+            cursor: default;
+        }
+    </style>
     <title>Feature Scaling</title>
 </head>
 <body>
@@ -89,7 +123,6 @@
                                     {% csrf_token %}
                                     {{ scaling_feature.scaling_method }}
                                     <button type="submit" name="scaling_btn" class="btn btn-primary manual-scale-btn" id="{{ key }}" value="{{ key }}"> Scale </button>
-
                                 </form>
                             </td>
                             <td>
@@ -100,41 +133,10 @@
                     </tbody>
                     </table>
                     <!-- Paginator -->
-                    <div id="data_cleaning_page_holder">
-                    <div class="align-self-center mx-auto align-items-center" style="height: 50px;">
-                        {{ feature_name.render }}
-                    </div>
-{#                    {% if feature_name.has_other_pages %}#}
-{#                    <ul id="feature_scaling_page" class="pagination">#}
-{#                        {% if feature_name.has_previous %}#}
-{#                        <li class="page-item">#}
-{#                            <a class="page-link" href="{% url 'data_cleaning' %}?page={{ feature_name.previous_page_number }}">&laquo;</a>#}
-{#                        </li>#}
-{#                        {% else %}#}
-{#                        <li class="page-item disabled"><span class="page-link">&laquo;</span></li>#}
-{#                        {% endif %}#}
-{#                        {% for i in feature_name.paginator.page_range %}#}
-{#                            {% if feature_name.number == i %}#}
-{#                                <li class="active page-item">#}
-{#                                    <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>#}
-{#                                </li>#}
-{#                            {% else %}#}
-{#                                <li class="page-item">#}
-{#                                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>#}
-{#                                </li>#}
-{#                            {% endif %}#}
-{#                        {% endfor %}#}
-{#                        {% if feature_name.has_next %}#}
-{#                            <li class="page-item">#}
-{#                                <a class="page-link" href="{% url 'data_cleaning' %}?page={{ feature_name.next_page_number }}">&raquo;</a>#}
-{#                            </li>#}
-{#                        {% else %}#}
-{#                            <li class="disabled page-item">#}
-{#                                <span class="page-link">&raquo;</span>#}
-{#                            </li>#}
-{#                        {% endif %}#}
-{#                    </ul>#}
-{#                    {% endif %}#}
+                    <div id="data_cleaning_page_holder" class="row">
+                        <div class="align-self-center mx-auto align-items-center" style="height: 50px;">
+                            {{ feature_name.render }}
+                        </div>
                     </div>
                     <!-- End of Paginator -->
                 </div>
