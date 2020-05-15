@@ -45,8 +45,8 @@ _DROP_FEATURES = 'drop_features'
 _SKIP = 'skip'
 _DEFAULT_REPLACE_VALUE = 0.0
 
-AWS_ACCESS_KEY_ID = 'AKIAU33V7LVLXIAJ5CUU'
-AWS_SECRET_ACCESS_KEY = 'cv2FdevMHXd4aoH9dlv0k+R0FWZdPxmNLPISCI0O'
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 
 
 def convert(data, to):
@@ -779,14 +779,21 @@ class PPD:
 
     def set_standardization(self, feature):
         num_feature = self.data.select_dtypes(include=np.number, exclude='object').columns
-        if (feature is None) | (feature == ''):
+        if (feature is None) | (feature == '') | (feature == 'all'):
             self.data.loc[:, num_feature] = preprocessing.scale(self.data.loc[[num_feature]])
         else:
             self.data.loc[:, feature] = preprocessing.scale(self.data.loc[[feature]])
 
     def set_normalization(self, feature):
         num_feature = self.data.select_dtypes(include=np.number, exclude='object').columns
-        if (feature is None) | (feature == ''):
+        if (feature is None) | (feature == '') | (feature == 'all'):
             self.data.loc[:, num_feature] = preprocessing.normalize(self.data.loc[[num_feature]])
         else:
             self.data.loc[:, feature] = preprocessing.normalize(self.data.loc[[feature]])
+
+    def get_category_stat(self, feature):
+        temp = pd.DataFrame(self.data[feature].value_counts())
+        temp.columns = [''] * len(temp.columns)
+        temp = temp.to_dict()
+        temp = temp[''].items()
+        return temp

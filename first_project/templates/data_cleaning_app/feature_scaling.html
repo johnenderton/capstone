@@ -94,10 +94,20 @@
                         <table id="feature_status_table" class="table table-hover">
                             <tbody>
                                 <tr>
-                                    <td>Normalization</td>
+                                    <td>
+                                        <form method="post">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-secondary btn-lg btn-block" name="normalization">Normalization</button>
+                                        </form>
+                                    </td>
                                 </tr>
                                 <tr>
-                                    <td>Standardization</td>
+                                    <td>
+                                        <form method="post">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-secondary btn-lg btn-block" name="standardization">Standardization</button>
+                                        </form>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>

@@ -35,8 +35,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 data_files_dir = None
 file_name = None
 ppd = PPD()
-AWS_ACCESS_KEY_ID = 'AKIAU33V7LVLXIAJ5CUU'
-AWS_SECRET_ACCESS_KEY = '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'
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 
 
 def index(request):
@@ -117,7 +117,8 @@ def status(request):
             'mean': feature_status.at[i, 'Mean'],
             'median': feature_status.at[i, 'Median'],
             'variance': feature_status.at[i, 'Variance'],
-            'standard_deviation': feature_status.at[i, 'Standard Deviation']
+            'standard_deviation': feature_status.at[i, 'Standard Deviation'],
+            'category_stat': ppd.get_category_stat(i) if feature_status.at[i, 'attr_type'] == 'category' else None
         }
 
     # Pagination
@@ -1020,6 +1021,12 @@ def feature_scaling(request):
     global ppd
     if request.method == 'POST':
         print("feature scaling post")
+        if 'normalization' in request.POST:
+            ppd.set_normalization('all')
+
+        if 'standardization' in request.POST:
+            ppd.set_standardization('all')
+
         if 'scaling_btn' in request.POST:
             scaling_feature = Feature_Scaling_form(request.POST)
             print(scaling_feature.errors)

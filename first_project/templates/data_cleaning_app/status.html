@@ -116,7 +116,6 @@
         <tbody class="accordion" id="feature_status_accordion">
 
         {% for key, value in feature_status.object_list %}
-
             <tr id="heading_{{ key }}" data-toggle="collapse" data-target="#collapse_{{ key }}" class="accordion-toggle collapsed">
                 <td>{{ key }}</td>
                 <td>{{ value.attr_type }}</td>
@@ -124,11 +123,16 @@
                 <td>{{ value.number_of_missing }}</td>
                 <td>{{ value.percentage_of_missing }}</td>
                 <td>
-                {% if value.attr_type == 'numeric' %}
-                    <button type="button" class="btn btn-link" >Show Statistic</button>
-                {% else %}
-                    <label>Category type has no statistic</label>
-                {% endif %}
+{#                {% if value.attr_type == 'numeric' %}#}
+{#                    <button type="button" class="btn btn-link" >Show Statistic</button>#}
+{#                {% else %}#}
+{#                    <label>Number of unique value of Category</label>#}
+{#                {% endif %}#}
+                    {% if value.n_unique_val > 5 and value.attr_type == 'category' %}
+                        <button name="{{ key }}" class="btn btn-primary" id="{{ key }}" data-toggle="modal" data-target="#{{ key }}_modal"> Show Statistic </button>
+                    {% else %}
+                        <button type="button" class="btn btn-primary" >Show Statistic</button>
+                    {% endif %}
                 </td>
                 <td>
                     <form method="post">
@@ -138,34 +142,96 @@
                 </td>
             </tr>
             {% if value.attr_type == 'numeric' %}
-            <tr id="collapse_{{ key }}" class="hide-table-padding collapse" aria-labelledby="heading_{{ key }}" data-parent="#feature_status_accordion">
-                <td colspan="6">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Mean</th>
-                                <th>Median</th>
-                                <th>Variance</th>
-                                <th>Standard Deviation</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>{{ value.mean }}</td>
-                                <td>{{ value.median }}</td>
-                                <td>{{ value.variance }}</td>
-                                <td>{{ value.standard_deviation }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
+                <tr id="collapse_{{ key }}" class="hide-table-padding collapse" aria-labelledby="heading_{{ key }}" data-parent="#feature_status_accordion">
+                    <td colspan="6">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Mean</th>
+                                    <th>Median</th>
+                                    <th>Variance</th>
+                                    <th>Standard Deviation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{{ value.mean }}</td>
+                                    <td>{{ value.median }}</td>
+                                    <td>{{ value.variance }}</td>
+                                    <td>{{ value.standard_deviation }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            {% else %}
+                {% if value.n_unique_val > 5 %}
+                {% else %}
+                    <tr id="collapse_{{ key }}" class="hide-table-padding collapse" aria-labelledby="heading_{{ key }}" data-parent="#feature_status_accordion">
+                    <td colspan="6">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Feature Unique Value</th>
+                                    <th>Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for name, value in value.category_stat %}
+                                <tr>
+                                    <td>{{ name }}</td>
+                                    <td>{{ value }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                {% endif %}
             {% endif %}
         {% endfor %}
-
         </tbody>
     </table>
 </div>
+{% for key, value in feature_status.object_list %}
+    {% if value.attr_type == 'category' %}
+        {% if value.n_unique_val > 5 %}
+        <div class="modal fade" id="{{ key }}_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Category Statistic</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <table class="table" style="overflow-y: scroll; height: 500px; display: block">
+                        <thead>
+                        <th>Feature Unique Value</th>
+                        <th>Quantity</th>
+                        </thead>
+                        <tbody>
+                        {% for name, value in value.category_stat %}
+                            <tr>
+                                <td>{{ name }}</td>
+                                <td>{{ value }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+        </div>
+        {% endif %}
+    {% endif %}
+{% endfor %}
+
 <div class="row">
 <div class="align-self-center mx-auto align-items-center" style="height: 50px;">
 {{ feature_status.render }}

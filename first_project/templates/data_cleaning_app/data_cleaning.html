@@ -149,40 +149,9 @@
                     </table>
                     <!-- Paginator -->
                     <div id="data_cleaning_page_holder" class="row">
-                    <div class="align-self-center mx-auto align-items-center" style="height: 50px;">
-                        {{ category_feature_name.render }}
-                    </div>
-{#                    {% if category_feature_name.has_other_pages %}#}
-{#                    <ul id="data_cleaning_page" class="pagination">#}
-{#                        {% if category_feature_name.has_previous %}#}
-{#                        <li class="page-item">#}
-{#                            <a class="page-link" href="{% url 'data_cleaning' %}?page={{ category_feature_name.previous_page_number }}">&laquo;</a>#}
-{#                        </li>#}
-{#                        {% else %}#}
-{#                        <li class="page-item disabled"><span class="page-link">&laquo;</span></li>#}
-{#                        {% endif %}#}
-{#                        {% for i in category_feature_name.paginator.page_range %}#}
-{#                            {% if category_feature_name.number == i %}#}
-{#                                <li class="active page-item">#}
-{#                                    <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>#}
-{#                                </li>#}
-{#                            {% else %}#}
-{#                                <li class="page-item">#}
-{#                                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>#}
-{#                                </li>#}
-{#                            {% endif %}#}
-{#                        {% endfor %}#}
-{#                        {% if category_feature_name.has_next %}#}
-{#                            <li class="page-item">#}
-{#                                <a class="page-link" href="{% url 'data_cleaning' %}?page={{ category_feature_name.next_page_number }}">&raquo;</a>#}
-{#                            </li>#}
-{#                        {% else %}#}
-{#                            <li class="disabled page-item">#}
-{#                                <span class="page-link">&raquo;</span>#}
-{#                            </li>#}
-{#                        {% endif %}#}
-{#                    </ul>#}
-{#                    {% endif %}#}
+                        <div class="align-self-center mx-auto align-items-center" style="height: 50px;">
+                            {{ category_feature_name.render }}
+                        </div>
                     </div>
                     <!-- End of Paginator -->
                 </div>
