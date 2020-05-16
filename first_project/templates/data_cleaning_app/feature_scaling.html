@@ -97,7 +97,7 @@
                                     <td>
                                         <form method="post">
                                             {% csrf_token %}
-                                            <button type="submit" class="btn btn-secondary btn-lg btn-block" name="normalization">Normalization</button>
+                                            <button type="submit" class="btn btn-secondary btn-lg btn-block check_missing" name="normalization">Normalization</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -105,7 +105,7 @@
                                     <td>
                                         <form method="post">
                                             {% csrf_token %}
-                                            <button type="submit" class="btn btn-secondary btn-lg btn-block" name="standardization">Standardization</button>
+                                            <button type="submit" class="btn btn-secondary btn-lg btn-block check_missing" name="standardization">Standardization</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -132,7 +132,7 @@
                                 <form method="post">
                                     {% csrf_token %}
                                     {{ scaling_feature.scaling_method }}
-                                    <button type="submit" name="scaling_btn" class="btn btn-primary manual-scale-btn" id="{{ key }}" value="{{ key }}"> Scale </button>
+                                    <button type="submit" name="scaling_btn" class="btn btn-primary manual-scale-btn check_missing" id="{{ key }}" value="{{ key }}"> Scale </button>
                                 </form>
                             </td>
                             <td>
@@ -169,18 +169,30 @@
     $(document).ready(function(){
         $("select.manual_scaling").change(function(){
             let selectedScaler = $(this).children("option:selected").val();
-            $(".manual-scale-btn").click(function () {
-                let feature_name = this.id;
-                $("#manual_encode_feature_name").val(feature_name);
-                let selectedModal = "#" + selectedScaler + "_modal";
-                $(this).attr('data-target', selectedModal);
-                let encoder_feature_name = selectedScaler + "_feature_name";
-                $("#"+encoder_feature_name).val(feature_name);
-                console.log(selectedModal);
-                console.log(selectedScaler);
-
+            $(".manual-scale-btn").click(function (event) {
+                if (selectedScaler === '') {
+                    event.preventDefault()
+                    alert("Please select a scaling method!")
+                } else {
+                    let feature_name = this.id;
+                    $("#manual_encode_feature_name").val(feature_name);
+                    let selectedModal = "#" + selectedScaler + "_modal";
+                    $(this).attr('data-target', selectedModal);
+                    let encoder_feature_name = selectedScaler + "_feature_name";
+                    $("#" + encoder_feature_name).val(feature_name);
+                    console.log(selectedModal);
+                    console.log(selectedScaler);
+                }
             });
         });
+
+        $(".check_missing").click(function (event) {
+            {% if have_missing is True %}
+            event.preventDefault()
+            alert("The data set has missing values. Please Impute the missing first!")
+            {% endif %}
+        });
+
         $("#feature_scaling_page").twbsPagination({
             totalPages: {{ num_page }},
             visiblePages: 20

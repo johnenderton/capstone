@@ -1063,6 +1063,7 @@ def feature_scaling(request):
         'scaling_feature': scaling_feature,
         'feature_name': feature_name_page,
         'num_page': paginator.num_pages,
+        'have_missing': ppd.check_any_missing()
     }
     return render(request, 'data_cleaning_app/feature_scaling.html', context=context)
 

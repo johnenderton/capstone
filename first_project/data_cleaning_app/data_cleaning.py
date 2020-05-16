@@ -780,16 +780,16 @@ class PPD:
     def set_standardization(self, feature):
         num_feature = self.data.select_dtypes(include=np.number, exclude='object').columns
         if (feature is None) | (feature == '') | (feature == 'all'):
-            self.data.loc[:, num_feature] = preprocessing.scale(self.data.loc[[num_feature]])
+            self.data.loc[:, num_feature] = preprocessing.scale(self.data[num_feature])
         else:
-            self.data.loc[:, feature] = preprocessing.scale(self.data.loc[[feature]])
+            self.data.loc[:, feature] = preprocessing.scale(self.data[[feature]])
 
     def set_normalization(self, feature):
         num_feature = self.data.select_dtypes(include=np.number, exclude='object').columns
         if (feature is None) | (feature == '') | (feature == 'all'):
-            self.data.loc[:, num_feature] = preprocessing.normalize(self.data.loc[[num_feature]])
+            self.data.loc[:, num_feature] = preprocessing.normalize(self.data[num_feature])
         else:
-            self.data.loc[:, feature] = preprocessing.normalize(self.data.loc[[feature]])
+            self.data.loc[:, feature] = preprocessing.normalize(self.data[[feature]])
 
     def get_category_stat(self, feature):
         temp = pd.DataFrame(self.data[feature].value_counts())
