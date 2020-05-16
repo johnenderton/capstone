@@ -24,7 +24,7 @@ STATIC_DIR = os.path.join(BASE_DIR, "static")
 SECRET_KEY = '0m&3^$=59=&d-(+zqxst84wn&cp7uid!(%oli5y!ht8+xsngug'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -72,10 +72,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
-            'builtins': [
-                'data_cleaning_app.templatetags.proper_paginate',
-                'data_cleaning_app.templatetags.url_replace'
-            ]
         },
     },
 ]
